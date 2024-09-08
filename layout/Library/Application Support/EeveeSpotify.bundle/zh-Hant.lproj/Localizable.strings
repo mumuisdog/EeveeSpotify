@@ -1,0 +1,104 @@
+/* MARK: Settings */
+
+patching = "修補";
+lyrics = "歌詞";
+customization = "自訂";
+
+common_issues_tip_title = "遇到問題?";
+
+common_issues_tip_message = "如果您遇到問題，像是無法播放任何歌曲，請查看";
+common_issues_tip_button = "常見問題";
+
+reset_data = "重置資料";
+reset_data_description = "清除快取資料並重新啟動應用程式";
+
+checking_for_update = "檢查更新中...";
+update_available = "有可用更新";
+
+cancel = "取消";
+ok = "好";
+
+// Patching
+
+do_not_patch_premium = "不要修補Premium";
+patching_description = "The tweak intercepts requests to load user data, deserializes it, and modifies the parameters in real-time.
+
+If you have an active Premium subscription, you can turn on Do Not Patch Premium. The tweak won't patch the data or restrict the use of Premium server-sided features. App restart is required after changing.";
+
+overwrite_configuration = "覆寫配置";
+overwrite_configuration_description = "Replace remote configuration with the dumped Premium one. It might fix some issues, such as appearing ads, but it's not guaranteed.";
+
+// Lyrics
+
+lyrics_source = "歌詞來源";
+lyrics_source_description = "您可以選擇您偏好的歌詞來源\n\n
+
+Genius:提供高品質的歌詞，涵蓋的歌曲最多，且更新歌詞的速度最快。但不會同步顯示歌詞。
+
+LRCLIB:最開放的服務，提供同步顯示歌詞。但許多歌曲缺乏歌詞。
+
+Musixmatch:Spotify使用的服務。為許多歌曲提供同步顯示歌詞，但您需要來使用者令牌來使用此來源。";
+lyrics_additional_info = "If the tweak is unable to find a song or process the lyrics, you'll see a \"Couldn't load the lyrics for this song\" message. The lyrics might be wrong for some songs when using Genius due to how the tweak searches songs. I've made it work in most cases.";
+petitlyrics_description = "PetitLyrics: Offers plenty of time-synced Japanese and some international lyrics.";
+
+musixmatch_user_token = "Musixmatch User Token";
+user_token_placeholder = "輸入User Token或貼上
+複製除錯訊息";
+
+enter_user_token = "輸入User Token";
+enter_user_token_message = "為了使用Musixmatch，您需要從官方應用程式取得您的User Token。從App Store下載Musixmatch，註冊帳號，然後到設定 > 取得協助（Get help） > 複製除錯訊息，並貼上於此。您也可以使用MITM提取Token";
+
+genius_fallback = "Genius備用";
+genius_fallback_description = "如果%@出現問題，則從Genius載入歌詞";
+
+show_fallback_reasons = "顯示備用原因";
+
+romanized_lyrics = "羅馬拼音歌詞";
+romanized_lyrics_description = "顯示日文、韓文和中文的羅馬拼音歌詞";
+
+musixmatch_language = "Musixmatch歌詞語言";
+musixmatch_language_description = "You can enter a 2-letter Musixmatch language code and see translated lyrics on Musixmatch if they are available.";
+
+// UI
+
+lyrics_background_color_section = "歌詞背景顏色";
+lyrics_background_color_section_description = "If you turn on Display Original Colors, the lyrics will appear in the original Spotify colors for tracks that have them.
+
+You can set a static color or a normalization factor based on the extracted track cover's color. This factor determines how much dark colors are lightened and light colors are darkened. Generally, you will see lighter colors with a higher normalization factor.";
+
+display_original_colors = "顯示原始顏色";
+
+use_static_color = "使用靜態顏色";
+static_color = "靜態顏色";
+
+color_normalization_factor = "顏色標準參數";
+dark_popups = "深色彈出視窗";
+
+/* MARK: Premium PopUps */
+
+have_premium_popup = "It looks like you have an active Premium subscription, so the tweak won't patch the data or restrict the use of Premium server-sided features. You can manage this in the EeveeSpotify settings.";
+
+high_audio_quality_popup = "極高音質是伺服器端功能，此插件無法使用。";
+playlist_downloading_popup = "原生播放清單下載是伺服器端功能，無法透過此插件下載。不過，您仍然可以下載Podcast單集。";
+
+/* MARK: Lyrics */
+
+fallback_attribute = "備用";
+romanized_attribute = "羅馬拼音";
+
+musixmatch_unauthorized_popup = "由於未授權錯誤，插件無法從Musixmatch加載歌詞。請檢查或更新您的MusixmatchUser Token。如果您使用iPad，應該從 Musixmatch iPad應用程式中取得User Token";
+musixmatch_restricted_popup = "由於歌曲受到限制，插件無法從Musixmatch載入歌詞。這可能是因為美國IP位址造成的版權問題，所以如果您在美國，請更換地址或使用VPN";
+
+// Errors Titles
+
+no_such_song = "找不到歌曲";
+musixmatch_restricted = "受限";
+invalid_musixmatch_token = "未授權";
+decoding_error = "解碼錯誤";
+no_current_track = "沒有可用歌曲";
+unknown_error = "未知錯誤";
+
+// Instrumental Titles
+
+song_is_instrumental = "這首歌是純音樂";
+let_the_music_play = "讓音樂播放...";
