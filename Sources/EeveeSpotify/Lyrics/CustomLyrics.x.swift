@@ -1,32 +1,15 @@
 import Orion
 import SwiftUI
 
-class SPTPlayerTrackHook: ClassHook<NSObject> {
-    static let targetName = "SPTPlayerTrack"
+//
 
-    func metadata() -> [String:String] {
-        var meta = orig.metadata()
+struct LyricsGroup: HookGroup { }
 
-        meta["has_lyrics"] = "true"
-        return meta
-    }
-}
-
-class LyricsScrollProviderHook: ClassHook<NSObject> {
-    
-    static var targetName: String {
-        return EeveeSpotify.isOldSpotifyVersion
-            ? "Lyrics_CoreImpl.ScrollProvider"
-            : "Lyrics_NPVCommunicatorImpl.ScrollProvider"
-    }
-    
-    func isEnabledForTrack(_ track: SPTPlayerTrack) -> Bool {
-        return true
-    }
-}
+//
 
 class LyricsFullscreenViewControllerHook: ClassHook<UIViewController> {
-
+    typealias Group = LyricsGroup
+    
     static var targetName: String {
         return EeveeSpotify.isOldSpotifyVersion
             ? "Lyrics_CoreImpl.FullscreenViewController"
@@ -62,6 +45,7 @@ private var hasShownUnauthorizedPopUp = false
 //
 
 class LyricsOnlyViewControllerHook: ClassHook<UIViewController> {
+    typealias Group = LyricsGroup
     
     static var targetName: String {
         return EeveeSpotify.isOldSpotifyVersion
@@ -70,7 +54,6 @@ class LyricsOnlyViewControllerHook: ClassHook<UIViewController> {
     }
 
     func viewDidLoad() {
-        
         orig.viewDidLoad()
         
         guard
@@ -143,7 +126,7 @@ class LyricsOnlyViewControllerHook: ClassHook<UIViewController> {
 
 private func loadLyricsForCurrentTrack() throws {
     guard let track = HookedInstances.currentTrack else {
-        throw LyricsError.NoCurrentTrack
+        throw LyricsError.noCurrentTrack
     }
     
     //
@@ -162,6 +145,7 @@ private func loadLyricsForCurrentTrack() throws {
         case .lrclib: LrcLibLyricsRepository()
         case .musixmatch: MusixmatchLyricsRepository.shared
         case .petit: PetitLyricsRepository()
+        case .notReplaced: throw LyricsError.invalidSource
     }
     
     let lyricsDto: LyricsDto
@@ -179,25 +163,23 @@ private func loadLyricsForCurrentTrack() throws {
             
             switch error {
                 
-            case .InvalidMusixmatchToken:
-                
+            case .invalidMusixmatchToken:
                 if !hasShownUnauthorizedPopUp {
                     PopUpHelper.showPopUp(
                         delayed: false,
                         message: "musixmatch_unauthorized_popup".localized,
-                        buttonText: "OK"
+                        buttonText: "OK".uiKitLocalized
                     )
                     
                     hasShownUnauthorizedPopUp.toggle()
                 }
             
-            case .MusixmatchRestricted:
-                
+            case .musixmatchRestricted:
                 if !hasShownRestrictedPopUp {
                     PopUpHelper.showPopUp(
                         delayed: false,
                         message: "musixmatch_restricted_popup".localized,
-                        buttonText: "OK"
+                        buttonText: "OK".uiKitLocalized
                     )
                     
                     hasShownRestrictedPopUp.toggle()
@@ -208,7 +190,7 @@ private func loadLyricsForCurrentTrack() throws {
             }
         }
         else {
-            lastLyricsState.fallbackError = .UnknownError
+            lastLyricsState.fallbackError = .unknownError
         }
         
         if source == .genius || !UserDefaults.geniusFallback {
@@ -226,7 +208,7 @@ private func loadLyricsForCurrentTrack() throws {
     lastLyricsState.areEmpty = lyricsDto.lines.isEmpty
     
     lastLyricsState.wasRomanized = lyricsDto.romanization == .romanized
-    || (lyricsDto.romanization == .canBeRomanized && UserDefaults.lyricsOptions.romanization)
+        || (lyricsDto.romanization == .canBeRomanized && UserDefaults.lyricsOptions.romanization)
     
     lastLyricsState.loadedSuccessfully = true
 
@@ -239,7 +221,7 @@ private func loadLyricsForCurrentTrack() throws {
 
 func getLyricsForCurrentTrack(originalLyrics: Lyrics? = nil) throws -> Data {
     guard let track = HookedInstances.currentTrack else {
-        throw LyricsError.NoCurrentTrack
+        throw LyricsError.noCurrentTrack
     }
     
     var lyrics = preloadedLyrics
@@ -250,7 +232,7 @@ func getLyricsForCurrentTrack(originalLyrics: Lyrics? = nil) throws -> Data {
     }
     
     guard var lyrics = lyrics else {
-        throw LyricsError.UnknownError
+        throw LyricsError.unknownError
     }
     
     let lyricsColorsSettings = UserDefaults.lyricsColors
@@ -280,5 +262,5 @@ func getLyricsForCurrentTrack(originalLyrics: Lyrics? = nil) throws -> Data {
     }
     
     preloadedLyrics = nil
-    return try lyrics.serializedData()
+    return try lyrics.serializedBytes()
 }

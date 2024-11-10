@@ -2,7 +2,6 @@ import Foundation
 import UIKit
 
 class MusixmatchLyricsRepository: LyricsRepository {
-    
     private let apiUrl = "https://apic.musixmatch.com"
     
     var selectedLanguage: String
@@ -19,15 +18,11 @@ class MusixmatchLyricsRepository: LyricsRepository {
         _ path: String,
         query: [String: Any] = [:]
     ) throws -> Data {
-
         var stringUrl = "\(apiUrl)\(path)"
-
         var finalQuery = query
 
         finalQuery["usertoken"] = UserDefaults.musixmatchToken
-        finalQuery["app_id"] = UIDevice.current.isIpad
-            ? "mac-ios-ipad-v1.0"
-            : "mac-ios-v2.0"
+        finalQuery["app_id"] = UIDevice.current.musixmatchAppId
 
         let queryString = finalQuery.queryString.addingPercentEncoding(
             withAllowedCharacters: .urlHostAllowed
@@ -66,36 +61,29 @@ class MusixmatchLyricsRepository: LyricsRepository {
             let body = message["body"] as? [String: Any],
             let macroCalls = body["macro_calls"] as? [String: Any]
         else {
-            throw LyricsError.DecodingError
+            throw LyricsError.decodingError
         }
 
         if let header = message["header"] as? [String: Any],
             header["status_code"] as? Int == 401 {
-            throw LyricsError.InvalidMusixmatchToken
+            throw LyricsError.invalidMusixmatchToken
         }
         
         return macroCalls
     }
     
     private func getFirstSubtitle(_ subtitlesMessage: [String: Any]) throws -> [String: Any] {
-        guard
-            let subtitlesHeader = subtitlesMessage["header"] as? [String: Any],
-            let subtitlesStatusCode = subtitlesHeader["status_code"] as? Int
-        else {
-            throw LyricsError.DecodingError
-        }
-        
         guard 
             let subtitlesBody = subtitlesMessage["body"] as? [String: Any],
             let subtitleList = subtitlesBody["subtitle_list"] as? [[String: Any]],
             let firstSubtitle = subtitleList.first,
             let subtitle = firstSubtitle["subtitle"] as? [String: Any]
         else {
-            throw LyricsError.DecodingError
+            throw LyricsError.decodingError
         }
             
         if let restricted = subtitle["restricted"] as? Bool, restricted {
-            throw LyricsError.MusixmatchRestricted
+            throw LyricsError.musixmatchRestricted
         }
         
         return subtitle
@@ -118,16 +106,16 @@ class MusixmatchLyricsRepository: LyricsRepository {
             let body = message["body"] as? [String: Any],
             let translationsList = body["translations_list"] as? [[String: Any]]
         else {
-            throw LyricsError.DecodingError
+            throw LyricsError.decodingError
         }
 
-        let translations = translationsList.map {
-            $0["translation"] as! [String: Any]
+        let translations = translationsList.compactMap {
+            $0["translation"] as? [String: Any]
         }
         
-        return Dictionary(uniqueKeysWithValues: translations.map {
-            ($0["subtitle_matched_line"] as! String, $0["description"] as! String)
-        })
+        return translations.reduce(into: [:]) { dictionary, translation in
+            dictionary[translation["subtitle_matched_line"] as! String] = translation["description"] as? String
+        }
     }
     
     //
@@ -246,7 +234,7 @@ class MusixmatchLyricsRepository: LyricsRepository {
            let lyricsStatusCode = lyricsHeader["status_code"] as? Int {
             
             if lyricsStatusCode == 404 {
-                throw LyricsError.NoSuchSong
+                throw LyricsError.noSuchSong
             }
             
             if let lyricsBody = lyricsMessage["body"] as? [String: Any],
@@ -255,7 +243,7 @@ class MusixmatchLyricsRepository: LyricsRepository {
                let plainLyrics = lyrics["lyrics_body"] as? String {
                 
                 if let restricted = lyrics["restricted"] as? Bool, restricted {
-                    throw LyricsError.MusixmatchRestricted
+                    throw LyricsError.musixmatchRestricted
                 }
                 
                 return LyricsDto(
@@ -269,6 +257,6 @@ class MusixmatchLyricsRepository: LyricsRepository {
             }
         }
 
-        throw LyricsError.DecodingError
+        throw LyricsError.decodingError
     }
 }

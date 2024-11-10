@@ -6,6 +6,8 @@ class BundleHelper {
     private let bundleName = "EeveeSpotify"
     
     private let bundle: Bundle
+    private let enBundle: Bundle
+    
     static let shared = BundleHelper()
     
     private init() {
@@ -16,6 +18,8 @@ class BundleHelper {
             )
             ?? jbRootPath("/Library/Application Support/\(bundleName).bundle")
         )!
+        
+        enBundle = Bundle(path: bundle.path(forResource: "en", ofType: "lproj")!)!
     }
     
     func uiImage(_ name: String) -> UIImage {
@@ -28,12 +32,18 @@ class BundleHelper {
     }
     
     func localizedString(_ key: String) -> String {
-        return bundle.localizedString(forKey: key, value: nil, table: nil)
+        let value = bundle.localizedString(forKey: key, value: "No translation", table: nil)
+        
+        if value != "No translation" {
+            return value
+        }
+        
+        return enBundle.localizedString(forKey: key, value: nil, table: nil)
     }
     
     func resolveConfiguration() throws -> ResolveConfiguration {
         return try ResolveConfiguration(
-            serializedData: try Data(
+            serializedBytes: try Data(
                 contentsOf: self.bundle.url(
                     forResource: "resolveconfiguration",
                     withExtension: "bnk"
